@@ -1,0 +1,42 @@
+diff -urN kexis-clean/decode.c kexis-os2/decode.c
+--- kexis-clean/decode.c	Fri Sep 22 08:44:36 2000
++++ kexis-os2/decode.c	Tue Jan  8 14:31:00 2002
+@@ -159,6 +159,9 @@
+ 			}
+ 		}	
+ 		else {
++                        #ifdef __EMX__
++                          _fsetmode (stdout, "b");
++                        #endif
+ 			options->outFileStream = stdout;
+ 		}
+ 			
+diff -urN kexis-clean/kexis.c kexis-os2/kexis.c
+--- kexis-clean/kexis.c	Fri Sep 22 08:55:32 2000
++++ kexis-os2/kexis.c	Tue Jan  8 14:40:28 2002
+@@ -326,7 +326,9 @@
+ void handle_verbose(OPTIONSTRUCT *options, KEXISBLOCKSTRUCT *kexisBlock,
+ 	PCMBLOCKSTRUCT *pcmBlock)
+ {
++#ifndef __EMX__
+ 	struct rusage usage;
++#endif 
+ 
+ 	if(options->progress && options->mode==COMPRESS && !options->dec_stdout)
+ 		printf("\nCompression:%6.2f%% (of original file size)",
+@@ -335,11 +337,15 @@
+ 			 	((float)pcmBlock->pcmStreamLength/2)));
+ 
+ 	if(options->verbose && !options->dec_stdout) {
++
++#ifndef __EMX__
+ 		getrusage(RUSAGE_SELF,&usage);
+ 		printf("\nTotal User Time  : %ld seconds, %ld ms.\n",
+ 	  	usage.ru_utime.tv_sec, usage.ru_utime.tv_usec/1000);
+ 		printf("Total System Time: %ld seconds, %ld ms.\n",
+ 			usage.ru_stime.tv_sec, usage.ru_stime.tv_usec/1000);
++#endif
++
+ 		printf("Low Pd mid: %d\tHigh Pd mid: %d\tAverage Pd mid: %9.3f\n",
+ 			kexisBlock->predictor.lowDiffMid,
+ 			kexisBlock->predictor.highDiffMid,
